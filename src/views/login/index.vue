@@ -111,11 +111,8 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          console.log('loginForm3')
-          console.log(this.loginForm)
           this.$store.dispatch('user/login', this.loginForm).then(() => {
             console.log('loginForm5')
-            console.log(this.loginForm)
             this.$router.push({ path: this.redirect || '/' })
             this.$message({
               message: '登陆成功',
