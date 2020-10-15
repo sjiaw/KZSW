@@ -36,10 +36,10 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    before: require('./mock/mock-server.js'),
+    // before: require('./mock/mock-server.js'),
     proxy: {
       '/api': {
-        target: `http://172.17.1.204`, // 这个链接是要代理到的api地址
+        target: `http://172.17.1.204:8803`, // 这个链接是要代理到的api地址
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
