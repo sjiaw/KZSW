@@ -38,11 +38,11 @@ module.exports = {
     },
     // before: require('./mock/mock-server.js'),
     proxy: {
-      '/api': {
-        target: `http://172.17.1.204:8803`, // 这个链接是要代理到的api地址
+      [process.env.VUE_APP_BASE_API]: {
+        target: 'http://172.17.1.204:8803',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          ['^' +process.env.VUE_APP_BASE_API]: ''
         }
       }
     }
