@@ -112,7 +112,6 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
-            console.log('loginForm5')
             this.$router.push({ path: this.redirect || '/' })
             this.$message({
               message: '登陆成功',
