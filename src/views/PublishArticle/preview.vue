@@ -1,12 +1,12 @@
 <template>
   <el-container>
     <el-header>
-      <div style="text-align: center; margin-top: 30px; font-weight: 700;font-size: 36px">{{temp.title}}</div>
+      <div style="text-align: center; margin-top: 30px; font-weight: 700;font-size: 36px">{{ temp.title }}</div>
     </el-header>
     <el-main>
-      <div style="text-align: center">来源：{{temp.auth}}</div>
+      <div style="text-align: center">来源：{{ temp.auth }}</div>
       <div class="editor_wrap">
-        <quill-editor class="editor" v-model="temp.content" ref="myQuillEditor" :options="editorOption" @focus="onEditorFocus($event)"></quill-editor>
+        <quill-editor ref="myQuillEditor" v-model="temp.content" class="editor" :options="editorOption" @focus="onEditorFocus($event)" />
       </div>
     </el-main>
   </el-container>
@@ -23,6 +23,12 @@ import 'quill/dist/quill.bubble.css'
 
 export default {
   name: 'Preview',
+  components: {
+    quillEditor
+  },
+  props: {
+    content: '请输入文章内容' // 编辑器的内容
+  },
   data() {
     return {
       listLoading: false,
@@ -51,21 +57,15 @@ export default {
       }
     }
   },
-  props: {
-    content: null // 编辑器的内容
-  },
-  components: {
-    quillEditor
+  computed: {
+    editor() {
+      return this.$refs.myQuillEditor.quill
+    }
   },
   watch: {
     value(val) {
       // eslint-disable-next-line no-undef
       his.content = this.temp.content
-    }
-  },
-  computed: {
-    editor() {
-      return this.$refs.myQuillEditor.quill
     }
   },
   mounted() {

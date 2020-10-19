@@ -48,7 +48,7 @@ export default {
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
       this.$message({
         message: '退出登录'
-      });
+      })
     }
   }
 }

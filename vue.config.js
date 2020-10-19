@@ -42,7 +42,7 @@ module.exports = {
         target: 'http://172.17.1.204:8803',
         changeOrigin: true,
         pathRewrite: {
-          ['^' +process.env.VUE_APP_BASE_API]: ''
+          ['^' + process.env.VUE_APP_BASE_API]: ''
         }
       }
     }
@@ -56,9 +56,9 @@ module.exports = {
         '@': resolve('src')
       }
     },
-    //关闭 webpack 的性能提示
+    // 关闭 webpack 的性能提示
     performance: {
-      hints:false
+      hints: false
     }
   },
   chainWebpack(config) {
