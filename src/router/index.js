@@ -3,25 +3,25 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-/* Layout */
+/* Layout 这是框 */
 import Layout from '@/layout'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
- * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
+ * 注意: 子菜单只在路由子菜单时长度> = 1的时候出现
+ * 参考网址: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
  *
- * hidden: true                   if set true, item will not show in the sidebar(default is false)
- * alwaysShow: true               if set true, will always show the root menu
- *                                if not set alwaysShow, when item has more than one children route,
- *                                it will becomes nested mode, otherwise not show the root menu
- * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
+ * hidden: true                   如果设置为true，项目将不会显示在侧栏中(默认为false)
+ * alwaysShow: true               如果设置为true，将始终显示根菜单
+ *                                如果不设置alwaysShow, 当项目有多个子路由时，它将成为嵌套模式，否则不显示根菜单
+ * redirect: noRedirect           如果设置noRedirect，则不会在面包屑中重定向
  * name:'router-name'             the name is used by <keep-alive> (must set!!!)
  * meta : {
-    roles: ['admin','editor']    control the page roles (you can set multiple roles)
-    title: 'title'               the name show in sidebar and breadcrumb (recommend set)
-    icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
-    breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-    activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
+    roles: ['admin','editor']    控制页面角色(可以设置多个角色)'admin','editor'
+    title: 'title'               名称显示在侧边栏和面包屑(推荐集)
+    icon: 'svg-name'/'el-icon-x' 图标显示在侧栏中
+    breadcrumb: false            如果设置为false，则该项将隐藏在breadcrumb中(默认为true)
+    activeMenu: '/example/list'  如果设置路径，侧栏将突出显示您设置的路径
   }
  */
 
@@ -29,6 +29,9 @@ import Layout from '@/layout'
  * constantRoutes
  * a base page that does not have permission requirements
  * all roles can be accessed
+ * 没有权限要求的基本页
+ * 所有角色都可以访问
+ * 不需要动态判断权限的路由
  */
 export const constantRoutes = [
   {
@@ -180,19 +183,32 @@ export const constantRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
+/**
+ * asyncRoutes
+ * the routes that need to be dynamically loaded based on user roles
+ * 异步挂载的路由
+ * 动态需要根据权限加载的路由表 
+ */
+export const asyncRoutes = []
+
 const createRouter = () => new Router({
   // mode: 'history', // require service support
-  mode: 'hash',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
 const router = createRouter()
-
-// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+// 重置路由
+// 参考网址: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
 
 export default router
+
+/***
+ *
+ *  constantRoutes 和 asyncRoutes这2个是routes中分两块路由配置，一块是固定的，无权限的路由配置，也就是不管是管理员身份，还是超级管理员身份，都会显示的路由配置。
+第二块是，带权限的路由配置，根据用户权限来显示侧边栏。注意，带权限的配置里的meta中都有role项，代表是权限
+ */
