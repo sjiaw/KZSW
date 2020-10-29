@@ -79,13 +79,6 @@ export const constantRoutes = [
         component: () => import('@/views/PublishArticle/preview'),
         meta: { title: '预览', icon: 'form' },
         hidden: true
-      },
-      {
-        path: 'ceshi',
-        name: 'ceshi',
-        component: () => import('@/views/PublishArticle/ceshi'),
-        meta: { title: '测试', icon: 'form' },
-        hidden: true
       }
     ]
   },
