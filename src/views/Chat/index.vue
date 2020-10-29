@@ -2,7 +2,7 @@
   <el-container style="height: 100vh;">
     <el-aside>
       <el-table :data="friendList" border style="width: 100%">
-        <el-table-column prop="date" label="好友列表" align="center" />
+        <el-table-column prop="friend" label="好友列表" align="center" />
       </el-table>
     </el-aside>
     <el-container>
@@ -12,22 +12,31 @@
   </el-container>
 </template>
 
+<script src="http://cdn.ronghub.com/RongIMLib-3.0.5-dev.js"></script>
+
 <script>
+import { getToken, getUid } from '@/utils/auth'
 /* eslint-disable */
 export default {
   name: 'Chat',
   data() {
     return {
-        friendList: [{
-          date: '2016-05-02'
-        }, {
-          date: '2016-05-04'
-        }, {
-          date: '2016-05-01'
-        }, {
-          date: '2016-05-03'
-        }]
-      }
+      friendList: [{
+        friend: '好友1'
+      }, {
+        friend: '好友2'
+      }, {
+        friend: '好友3'
+      }, {
+        friend: '好友4'
+      }]
+    }
+  },
+  mounted() {
+    var im = RongIMLib.init({
+      appkey: 'k51hidwqkvicb'
+    });
+
   }
 }
 </script>
