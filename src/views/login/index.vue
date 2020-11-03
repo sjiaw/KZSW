@@ -1,59 +1,74 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
+    <el-tabs v-model="activeName" class="login-form" :stretch="true" :tab-position="tabPosition">
       <div class="title-container">
         <h3 class="title">康智后台</h3>
       </div>
-
-      <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
-
-      <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
-      </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
-      <div class="tips">
-        <span style="margin-right:20px;">username: 18888888888</span>
-        <span> password: 123456</span>
-      </div>
-
-    </el-form>
+      <el-tab-pane label="账户密码登录" name="first">
+        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" auto-complete="on" label-position="left">
+          <el-form-item prop="username">
+            <span class="svg-container">
+              <svg-icon icon-class="user" />
+            </span>
+            <el-input ref="username" v-model="loginForm.username" placeholder="用户名" name="username" type="text" tabindex="1" auto-complete="on" />
+          </el-form-item>
+          <el-form-item prop="password">
+            <span class="svg-container">
+              <svg-icon icon-class="password" />
+            </span>
+            <el-input :key="passwordType" ref="password" v-model="loginForm.password" :type="passwordType" placeholder="密码" name="password" tabindex="2" auto-complete="on" @keyup.enter.native="handleLogin" />
+            <span class="show-pwd" @click="showPwd">
+              <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+            </span>
+          </el-form-item>
+          <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+          <div class="tips">
+            <span style="margin-right:20px;">username: 18888888888</span>
+            <span> password: 123456</span>
+          </div>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="手机验证码登录" name="second">
+        <el-form ref="noteFrom" :model="noteFrom">
+          <el-form-item>
+            <span class="svg-container">
+              <svg-icon icon-class="user" />
+            </span>
+            <el-input v-model="noteFrom.phone" placeholder="手机号"></el-input>
+          </el-form-item>
+          <el-row :gutter="24">
+            <el-col :span="15">
+              <el-form-item>
+                <span class="svg-container">
+                  <svg-icon icon-class="password" />
+                </span>
+                <el-input v-model="noteFrom.note" placeholder="验证码"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="9">
+              <el-button type="success" round style="margin-top: 7px;" @click.native.prevent="sendNote" :disabled="!show">
+                <span v-show="show">发送验证码</span>
+                <span v-show="!show" class="count">{{count}} s</span>
+              </el-button>
+              <!-- <button @click="getCode()" type="success" :disabled="!show">
+                <span v-show="show">发送验证码</span>
+                <span v-show="!show" class="count">{{count}} s</span>
+              </button> -->
+            </el-col>
+          </el-row>
+          <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="noteLogin">登录</el-button>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="扫码登录" name="third">
+        二维码
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <script>
 import { validUsername } from '@/utils/validate'
+const TIME_COUNT = 60 // 倒计时的时间
 
 export default {
   name: 'Login',
@@ -75,6 +90,8 @@ export default {
       }
     }
     return {
+      activeName: 'first',
+      tabPosition: 'bottom',
       loginForm: {
         username: '',
         password: ''
@@ -83,9 +100,16 @@ export default {
         username: [{ required: true, message: '请输入账户', trigger: 'blur' }],
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       },
+      noteFrom: {
+        phone: '',
+        note: ''
+      },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      show: true,
+      count: '',
+      timer: null
     }
   },
   watch: {
@@ -107,6 +131,7 @@ export default {
         this.$refs.password.focus()
       })
     },
+    /** 账号密码登录 */
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -126,6 +151,49 @@ export default {
           return false
         }
       })
+    },
+    /** 发送手机验证码 */
+    sendNote() {
+      if (this.noteFrom.phone === '') {
+        this.$message({
+          message: '请输入手机号',
+          type: 'warning',
+          center: true
+        })
+      } else if (!(/^1[3456789]\d{9}$/.test(this.noteFrom.phone))) {
+        this.$message({
+          message: '请输入正确的手机号',
+          type: 'warning',
+          center: true
+        })
+      } else {
+        this.$message({
+          message: '短信验证码已发送',
+          type: 'success',
+          center: true
+        })
+        this.getCode()
+      }
+    },
+    /** 手机验证码登录 */
+    noteLogin() {
+      console.log(this.noteFrom)
+    },
+    getCode() {
+      // 验证码倒计时
+      if (!this.timer) {
+        this.count = TIME_COUNT
+        this.show = false
+        this.timer = setInterval(() => {
+          if (this.count > 0 && this.count <= TIME_COUNT) {
+            this.count--
+          } else {
+            this.show = true
+            clearInterval(this.timer)
+            this.timer = null
+          }
+        }, 1000)
+      }
     }
   }
 }
@@ -138,6 +206,10 @@ export default {
 $bg:#283443;
 $light_gray:#fff;
 $cursor: #fff;
+
+.el-tabs__item {
+  color: #fff;
+}
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
   .login-container .el-input input {
@@ -188,6 +260,7 @@ $light_gray:#eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
+  -webkit-app-region: drag; // 可拖动
 
   .login-form {
     position: relative;
@@ -196,6 +269,7 @@ $light_gray:#eee;
     padding: 160px 35px 0;
     margin: 0 auto;
     overflow: hidden;
+    -webkit-app-region: no-drag; // 不可拖动
   }
 
   .tips {

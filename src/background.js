@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -14,15 +14,23 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true }}
 ])
 
+// ipcMain.on('changWindowSize', e =>
+//   win.setSize(1050, 700)
+// )
+
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1400, // 设置窗口的宽
+    height: 1200, // 设置窗口的高
+    // frame: false, // 去掉外边框
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      // nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION, // 是否完整支持node。默认为 true
+      webSecurity: false, // 是否禁用浏览器的跨域安全特性
+      skipTaskbar: true, // 是否在任务栏中显示窗口
     }
   })
 
@@ -87,3 +95,15 @@ if (isDevelopment) {
     })
   }
 }
+
+// ipcMain.on('changWindowSize', e =>
+//   win.setSize(1050, 700)
+// )
+
+// ipcMain.on('close', e =>
+//   win.hide()
+// )
+
+// ipcMain.on('minimize', e =>
+//   win.minimize()
+// )

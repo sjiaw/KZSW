@@ -6,6 +6,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+// const { ipcRenderer } = require('electron')
 
 export default {
   name: 'Dashboard',
@@ -13,7 +14,15 @@ export default {
     ...mapGetters([
       'name'
     ])
-  }
+  },
+  // mounted () {
+  //   this.changeWindowSize()
+  // },
+  // methods: {
+  //   changeWindowSize () {
+  //     ipcRenderer.send('changWindowSize')
+  //   }
+  // }
 }
 </script>
 
