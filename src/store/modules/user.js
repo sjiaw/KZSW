@@ -1,11 +1,15 @@
 import { login, logout } from '@/api/user'
-import { getToken, setToken, removeToken, getUid, setUid, removeUid } from '@/utils/auth'
+import { getToken, setToken, removeToken, getUid, setUid, removeUid, getNickname, setNickname, removeNickname, getUrl, setUrl, removeUrl, getRealityName, setRealityName, removeRealityName, getRCtoken, setRCtoken, removeRCtoken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     uid: getUid(),
+    nickname: getNickname(),
+    url: getUrl(),
+    realityName: getRealityName(),
+    rctoken: getRCtoken(),
     name: '',
     avatar: ''
   }
@@ -45,6 +49,10 @@ const actions = {
         commit('SET_TOKEN', data.token)
         setToken(data.token)
         setUid(data.uid)
+        setNickname(data.nickname)
+        setUrl(data.portraituri)
+        setRealityName(data.realityName)
+        setRCtoken(data.rctoken)
         resolve()
       }).catch(error => {
         reject(error)
@@ -59,7 +67,11 @@ const actions = {
       logout(Query).then(() => {
         removeToken() // must remove  token  first
         removeUid()
+        removeNickname()
+        removeUrl()
         resetRouter()
+        removeRealityName()
+        removeRCtoken()
         commit('RESET_STATE')
         resolve()
       }).catch(error => {
@@ -73,6 +85,10 @@ const actions = {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
       removeUid()
+      removeUrl()
+      removeNickname()
+      removeRealityName()
+      removeRCtoken()
       commit('RESET_STATE')
       resolve()
     })

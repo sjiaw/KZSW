@@ -34,7 +34,7 @@
             <span class="svg-container">
               <svg-icon icon-class="user" />
             </span>
-            <el-input v-model="noteFrom.phone" placeholder="手机号"></el-input>
+            <el-input v-model="noteFrom.phone" placeholder="手机号" />
           </el-form-item>
           <el-row :gutter="24">
             <el-col :span="15">
@@ -42,13 +42,13 @@
                 <span class="svg-container">
                   <svg-icon icon-class="password" />
                 </span>
-                <el-input v-model="noteFrom.note" placeholder="验证码"></el-input>
+                <el-input v-model="noteFrom.note" placeholder="验证码" />
               </el-form-item>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" round style="margin-top: 7px;" @click.native.prevent="sendNote" :disabled="!show">
+              <el-button type="success" round style="margin-top: 7px;" :disabled="!show" @click.native.prevent="sendNote">
                 <span v-show="show">发送验证码</span>
-                <span v-show="!show" class="count">{{count}} s</span>
+                <span v-show="!show" class="count">{{ count }}</span>
               </el-button>
               <!-- <button @click="getCode()" type="success" :disabled="!show">
                 <span v-show="show">发送验证码</span>
@@ -137,14 +137,14 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+            this.$router.push({ path: '/' })
             this.$message({
               message: '登陆成功',
               type: 'success'
             })
             this.loading = false
           }).catch(() => {
-            this.$router.push({ path: this.redirect || '/' })
+            this.$router.push({ path: '/' })
             this.loading = false
           })
         } else {
@@ -179,8 +179,8 @@ export default {
     noteLogin() {
       console.log(this.noteFrom)
     },
+    /** 验证码倒计时 */
     getCode() {
-      // 验证码倒计时
       if (!this.timer) {
         this.count = TIME_COUNT
         this.show = false

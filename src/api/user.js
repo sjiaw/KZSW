@@ -8,13 +8,13 @@ export function login(loginForm) {
   })
 }
 
-// export function getInfo(token) {
-//   return request({
-//     url: '/user/info',
-//     method: 'get',
-//     params: { access_token: token }
-//   })
-// }
+export function getToken(tokenFrom) {
+  return request({
+    url: '/rongcloud/getToken',
+    method: 'POST',
+    params: { uid: tokenFrom.uid, name: tokenFrom.name, portraitUri: tokenFrom.url }
+  })
+}
 
 export function logout(Query) {
   return request({

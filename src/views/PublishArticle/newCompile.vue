@@ -104,7 +104,7 @@ export default {
         type: [{ required: true, message: '请选择文章类型', trigger: 'blur' }],
         content: [{ required: true, message: '请输入详细内容', trigger: 'blur' }]
       },
-      url: 'http://172.17.1.204:8803/article/uploadArticle',
+      url: 'http://172.17.7.66:8803/article/uploadArticle',
       options: [{ value: '1', label: '1' },
         { value: '2', label: '2' },
         { value: '3', label: '3' }],

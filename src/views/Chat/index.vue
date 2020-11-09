@@ -6,15 +6,19 @@
       </el-table>
     </el-aside>
     <el-container>
-      <el-header>聊天对象</el-header>
-      <el-main>对话框</el-main>
-      <el-footer style="height: 200px;">输入框</el-footer>
+      <el-header><span>聊天对象</span></el-header>
+      <el-main>
+        <ul id="chat_list" />
+      </el-main>
+      <el-footer style="height: 200px; padding: 0px;">
+        <el-input v-model="textarea" type="textarea" :rows="30" placeholder="请输入内容" @keyup.enter.native="monitor" />
+      </el-footer>
     </el-container>
   </el-container>
 </template>
-
 <script>
-import { getToken, getUid } from '@/utils/auth'
+import { getRCtoken } from '@/utils/auth'
+
 /* eslint-disable */
 export default {
   name: 'Chat',
@@ -28,52 +32,92 @@ export default {
         friend: '好友3'
       }, {
         friend: '好友4'
-      }]
+      }],
+      textarea: '',
+      rc_token: getRCtoken(),
+      im: ''
     }
   },
   mounted() {
-    // 初始化融云SDK
-    var im = RongIMLib.init({
+    this.im = RongIMLib.init({ // 初始化 IM 实例(单个页面仅需初始化一次)
       appkey: 'k51hidwqkvicb'
-    });
-    // 先设置监听再连接服务器
-    var conversationList = []; // 当前已存在的会话列表
-    im.watch({
-      conversation: function(event){
-        var updatedConversationList = event.updatedConversationList; // 更新的会话列表
-        console.log('更新会话汇总:', updatedConversationList);
-        console.log('最新会话列表:', im.Conversation.merge({
-          conversationList,
-          updatedConversationList
-        }));
-      },
-      message: function(event){
-        var message = event.message;
-        console.log('收到新消息:', message);
-      },
-      status: function(event){
-        var status = event.status;
-        console.log('连接状态码:', status);
-      }
-    });
-    /* 开发者后台获取或 Server API */
+    })
     var user = {
-      token: 'mKmyKqTSf7aNDinwAFMnz7NXKI3dV3X0+Cd1BOxmtO2pmvsjW2HViWrePIfq0GuTu9jELQqsckv4AhfjCAKgQ=='
+      token: this.rc_token
     };
-    im.connect(user).then(function(user) {
+    this.im.connect(user).then(function(user) {
       console.log('链接成功, 链接用户 id 为: ', user.id);
     }).catch(function(error) {
       console.log('链接失败: ', error.code, error.msg);
-    });
-
+    })
+    var conversationList = []; // 当前已存在的会话列表
+    this.im.watch({
+      conversation: function(event) {
+        var updatedConversationList = event.updatedConversationList; // 更新的会话列表
+        console.log('更新会话汇总:', updatedConversationList)
+        // console.log('最新会话列表:', this.im.Conversation.merge({
+        //   conversationList: conversationList,
+        //   updatedConversationList: updatedConversationList
+        // }))
+      },
+      message: function(event){
+        var message = event.message;
+        console.log('收到新消息', message);
+      },
+      status: function(event){
+        var status = event.status;
+        switch (status) {
+          case RongIMLib.CONNECTION_STATUS.CONNECTED:
+            console.log('链接成功');
+            break;
+          case RongIMLib.CONNECTION_STATUS.CONNECTING:
+            console.log('正在连接中');
+            break;
+          case RongIMLib.CONNECTION_STATUS.DISCONNECTED:
+            console.log('已主动断开连接');
+            break;
+          case RongIMLib.CONNECTION_STATUS.NETWORK_UNAVAILABLE:
+            console.log('网络不可用'); // SDK 内部会自动进行重连
+            break;
+          case RongIMLib.CONNECTION_STATUS.SOCKET_ERROR:
+            console.log('Socket 链接错误'); // SDK 内部会自动进行重连
+            break;
+          case RongIMLib.CONNECTION_STATUS.KICKED_OFFLINE_BY_OTHER_CLIENT:
+            console.log('其他设备登录, 本端被踢'); // 己端被踢, 不可进行重连. 否则会造成多端循环互踢
+            break;
+          case RongIMLib.CONNECTION_STATUS.BLOCKED:
+            console.log('链接断开, 用户已被封禁');
+            break;
+          default:
+            console.log('链接状态变化为:', status);
+            break;
+        }
+      }
+    })
+  },
+  methods: {
+    monitor() {
+      var message = this.textarea
+      var conversation = this.im.Conversation.get({
+        targetId: '4',
+        type: RongIMLib.CONVERSATION_TYPE.PRIVATE
+      });
+      conversation.send({
+        messageType: RongIMLib.MESSAGE_TYPE.TEXT, // 'RC:TxtMsg'
+        content: {
+          content: message // 文本内容
+        }
+      }).then(function(message){
+        console.log('发送文字消息成功', message);
+        this.textarea = ''
+      });
+    }
   }
 }
 </script>
 
-<!-- <script src="http://cdn.ronghub.com/RongIMLib-3.0.5-dev.js"></script> -->
-
 <style scoped>
-.el-header, .el-footer {
+.el-header {
   background-color: #B3C0D1;
   color: #333;
   text-align: center;
