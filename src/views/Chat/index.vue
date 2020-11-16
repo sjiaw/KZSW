@@ -6,12 +6,12 @@
       </el-table>
     </el-aside>
     <el-container>
-      <el-header><span>聊天对象</span></el-header>
-      <el-main>
-        <ul id="chat_list" />
+      <el-header>正在和{{ 对象昵称 }}聊天中</el-header>
+      <el-main :style="defaultHeight">
+        <div id="main-chat"></div>
       </el-main>
       <el-footer style="height: 200px; padding: 0px;">
-        <el-input v-model="textarea" type="textarea" :rows="30" placeholder="请输入内容" @keyup.enter.native="monitor" />
+        
       </el-footer>
     </el-container>
   </el-container>
@@ -35,7 +35,14 @@ export default {
       }],
       textarea: '',
       rc_token: getRCtoken(),
-      im: ''
+      im: '',
+      messageList: [],
+      stat: {
+        textarea: ''
+      },
+      defaultHeight: {
+        height: ''
+      }
     }
   },
   mounted() {
@@ -46,25 +53,28 @@ export default {
       token: this.rc_token
     };
     this.im.connect(user).then(function(user) {
-      console.log('链接成功, 链接用户 id 为: ', user.id);
+      console.log('链接成功, 链接用户 id 为: ', user.id)
     }).catch(function(error) {
-      console.log('链接失败: ', error.code, error.msg);
+      console.log('链接失败: ', error.code, error.msg)
     })
-    var conversationList = []; // 当前已存在的会话列表
+    var conversationList = [] // 当前已存在的会话列表
     this.im.watch({
       conversation: function(event) {
-        var updatedConversationList = event.updatedConversationList; // 更新的会话列表
+        var updatedConversationList = event.updatedConversationList // 更新的会话列表
+        for(var i =0; i <= updatedConversationList.lenght; i++ ) {
+          this.messageList[i] = updatedConversationList[i].latestMessage.content.content
+        }
         console.log('更新会话汇总:', updatedConversationList)
         // console.log('最新会话列表:', this.im.Conversation.merge({
         //   conversationList: conversationList,
         //   updatedConversationList: updatedConversationList
         // }))
       },
-      message: function(event){
-        var message = event.message;
-        console.log('收到新消息', message);
+      message: function(event) {
+        var message = event.message
+        console.log('收到新消息', message)
       },
-      status: function(event){
+      status: function(event) {
         var status = event.status;
         switch (status) {
           case RongIMLib.CONNECTION_STATUS.CONNECTED:
@@ -94,10 +104,15 @@ export default {
         }
       }
     })
+    console.log('列表', this.messageList)
+    // window.onbeforeunload = function (e) { // 关闭浏览器窗口的时候清空浏览器缓存在localStorage的数据
+    //   var storage = window.localStorage;
+    //   storage.clear()
+    // }
   },
   methods: {
     monitor() {
-      var message = this.textarea
+      var message = this.stat.textarea
       var conversation = this.im.Conversation.get({
         targetId: '4',
         type: RongIMLib.CONVERSATION_TYPE.PRIVATE
@@ -108,20 +123,28 @@ export default {
           content: message // 文本内容
         }
       }).then(function(message){
-        console.log('发送文字消息成功', message);
-        this.textarea = ''
+        console.log('发送文字消息成功', message)
+        // this.stat.textarea = ''
       });
+    },
+    //定义方法，获取高度减去头尾
+    getHeight() {
+      this.defaultHeight.height = window.innerHeight - 260 + "px";
     }
+  },
+  created() {
+    //页面创建时执行一次getHeight进行赋值，顺道绑定resize事件
+    window.addEventListener("resize", this.getHeight);
+    this.getHeight();
   }
 }
 </script>
 
 <style scoped>
 .el-header {
-  background-color: #B3C0D1;
   color: #333;
-  text-align: center;
   line-height: 60px;
+  float: left;
 }
 
 .el-aside {
@@ -130,10 +153,7 @@ export default {
   width: 180px;
 }
 
-.el-main {
-  background-color: #E9EEF3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
+#main-chat {
+  background-color: #506177;
 }
 </style>

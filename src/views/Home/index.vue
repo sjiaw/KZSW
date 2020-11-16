@@ -78,6 +78,10 @@ export default {
   },
   mounted() {
     this.getToken()
+    // window.onbeforeunload = function(e) { // 关闭浏览器窗口的时候清空浏览器缓存在localStorage的数据
+    //   var storage = window.localStorage
+    //   storage.clear()
+    // }
   },
   methods: {
     /** 获取融云token */
